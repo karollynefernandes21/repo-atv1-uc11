@@ -5,6 +5,7 @@ import javax.swing.JOptionPane;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,8 +13,8 @@ public class ProdutosDAO {
 
     private conectaDAO conexao;
     private Connection conn;
-    private PreparedStatement prep;
-    private ResultSet resultset;
+    private PreparedStatement stmt;
+    private ResultSet rs;
     ArrayList<ProdutosDTO> listagem = new ArrayList<>();
 
     public ProdutosDAO() {
@@ -24,7 +25,7 @@ public class ProdutosDAO {
     public void cadastrarProduto(ProdutosDTO produto) {
 
         String sql = "INSERT INTO produtos(nome, valor, status) VALUES (?, ?, ?)";
-        PreparedStatement stmt = null;
+        stmt = null;
 
         try {
             stmt = this.conn.prepareStatement(sql);
@@ -51,17 +52,29 @@ public class ProdutosDAO {
     }
 
     public ArrayList<ProdutosDTO> listarProdutos() {
-
-        return listagem;
-    }
-
-    // Método para se desconectar do banco de dados
-    public void desconectar() {
-        try {
-            conn.close();
+        String sql = "SELECT * FROM produtos";
+        
+        try{
+            stmt = this.conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+            
+            while(rs.next()){
+                ProdutosDTO produtos = new ProdutosDTO();
+                
+                produtos.setId(rs.getInt("id"));
+                produtos.setNome(rs.getString("nome"));
+                produtos.setValor(rs.getInt("valor"));
+                produtos.setStatus(rs.getString("status"));
+                
+                listagem.add(produtos);
+            }
         } catch (SQLException ex) {
-
+            System.out.println("Não foi possível exibir a listagem: " + ex.getMessage());
         }
+        
+        
+        
+        return listagem;
     }
 
 }
