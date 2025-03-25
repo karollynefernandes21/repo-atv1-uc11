@@ -77,16 +77,38 @@ public class ProdutosDAO {
     public boolean venderProduto(int id) {
 
         String sqlUpdate = "UPDATE produtos SET status = 'Vendido' WHERE id = ? AND status != 'Vendido'";
-        
-        try(PreparedStatement stmt = this.conn.prepareStatement(sqlUpdate)){
-            stmt.setInt(1, id);
-            int linhasAfetadas = stmt.executeUpdate();
-            
+
+        try (PreparedStatement ps = this.conn.prepareStatement(sqlUpdate)) {
+            ps.setInt(1, id);
+            int linhasAfetadas = ps.executeUpdate();
+
             return linhasAfetadas > 0;
-        } catch(SQLException ex){
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public ArrayList<ProdutosDTO> listarProdutosVendidos() {
+        String sql = "SELECT * FROM produtos WHERE status = 'Vendido'";
+
+        try (PreparedStatement ps = this.conn.prepareStatement(sql)) {
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                ProdutosDTO produtos = new ProdutosDTO();
+
+                produtos.setId(rs.getInt("id"));
+                produtos.setNome(rs.getString("nome"));
+                produtos.setValor(rs.getInt("valor"));
+                produtos.setStatus(rs.getString("status"));
+
+                listagem.add(produtos);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return listagem;
     }
 
 }
