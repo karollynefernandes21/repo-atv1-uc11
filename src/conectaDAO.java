@@ -15,7 +15,6 @@ public class conectaDAO {
             String user = "root";
             String password = "klf200870@";
             conn = DriverManager.getConnection(url, user, password);
-            System.out.println("Conexão estabelecida!");
         } catch (SQLException erro) {
             JOptionPane.showMessageDialog(null, "Erro ao conectar com o banco de dados: " + erro.getMessage());
         }

@@ -53,27 +53,63 @@ public class ProdutosDAO {
 
     public ArrayList<ProdutosDTO> listarProdutos() {
         String sql = "SELECT * FROM produtos";
-        
-        try{
+
+        try {
             stmt = this.conn.prepareStatement(sql);
             rs = stmt.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 ProdutosDTO produtos = new ProdutosDTO();
-                
+
                 produtos.setId(rs.getInt("id"));
                 produtos.setNome(rs.getString("nome"));
                 produtos.setValor(rs.getInt("valor"));
                 produtos.setStatus(rs.getString("status"));
-                
+
                 listagem.add(produtos);
             }
         } catch (SQLException ex) {
             System.out.println("Não foi possível exibir a listagem: " + ex.getMessage());
         }
+        return listagem;
+    }
+
+    public boolean venderProduto(int id) {
+
+        String sqlUpdate = "UPDATE produtos SET status = 'Vendido' WHERE id = ? AND status != 'Vendido'";
+
+        try (PreparedStatement ps = this.conn.prepareStatement(sqlUpdate)) {
+            ps.setInt(1, id);
+            int linhasAfetadas = ps.executeUpdate();
+
+            return linhasAfetadas > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public ArrayList<ProdutosDTO> listarProdutosVendidos() {
+        String sql = "SELECT * FROM produtos WHERE status = 'Vendido'";
+
+        // Limpando a lista antes de listar os produtos vendidos
+        listagem.clear();
         
-        
-        
+        try (PreparedStatement ps = this.conn.prepareStatement(sql); ResultSet rst = ps.executeQuery()) {
+
+            while (rst.next()) {
+                ProdutosDTO produtos = new ProdutosDTO();
+
+                produtos.setId(rst.getInt("id"));
+                produtos.setNome(rst.getString("nome"));
+                produtos.setValor(rst.getInt("valor"));
+                produtos.setStatus(rst.getString("status"));
+
+                listagem.add(produtos);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
         return listagem;
     }
 
