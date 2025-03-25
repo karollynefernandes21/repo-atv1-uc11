@@ -53,28 +53,40 @@ public class ProdutosDAO {
 
     public ArrayList<ProdutosDTO> listarProdutos() {
         String sql = "SELECT * FROM produtos";
-        
-        try{
+
+        try {
             stmt = this.conn.prepareStatement(sql);
             rs = stmt.executeQuery();
-            
-            while(rs.next()){
+
+            while (rs.next()) {
                 ProdutosDTO produtos = new ProdutosDTO();
-                
+
                 produtos.setId(rs.getInt("id"));
                 produtos.setNome(rs.getString("nome"));
                 produtos.setValor(rs.getInt("valor"));
                 produtos.setStatus(rs.getString("status"));
-                
+
                 listagem.add(produtos);
             }
         } catch (SQLException ex) {
             System.out.println("Não foi possível exibir a listagem: " + ex.getMessage());
         }
-        
-        
-        
         return listagem;
+    }
+
+    public boolean venderProduto(int id) {
+
+        String sqlUpdate = "UPDATE produtos SET status = 'Vendido' WHERE id = ? AND status != 'Vendido'";
+        
+        try(PreparedStatement stmt = this.conn.prepareStatement(sqlUpdate)){
+            stmt.setInt(1, id);
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            return linhasAfetadas > 0;
+        } catch(SQLException ex){
+            ex.printStackTrace();
+            return false;
+        }
     }
 
 }
